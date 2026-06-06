@@ -1,6 +1,10 @@
 {
   "name": "norm",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/duds035/dudsV.git"
+  },
   "description": "Servidor para aplicação de checklists",
   "main": "server.js",
   "scripts": {
