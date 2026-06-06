@@ -4,12 +4,16 @@ const fs = require('fs');
 const path = require('path');
 
 const repoRoot = process.cwd();
-const ignoreDirs = ['.git', 'node_modules'];
+const ignoreDirs = ['.git', 'node_modules', '.github', '.githooks'];
+const ignoreFiles = ['package-lock.json', 'yarn.lock'];
 let timer = null;
 const DEBOUNCE_MS = 3000;
 
 function shouldIgnore(filePath) {
-  return ignoreDirs.some(d => filePath.indexOf(path.sep + d + path.sep) !== -1 || filePath.endsWith(path.sep + d));
+  if (!filePath) return true;
+  const normalized = filePath.split(path.sep).join(path.sep);
+  if (ignoreFiles.some(f => normalized.endsWith(path.sep + f) || normalized === path.join(repoRoot, f))) return true;
+  return ignoreDirs.some(d => normalized.indexOf(path.sep + d + path.sep) !== -1 || normalized.endsWith(path.sep + d));
 }
 
 function run(cmd) {
@@ -26,6 +30,11 @@ async function autoCommitAndPush() {
     const st = await run('git status --porcelain');
     if (!st.stdout.trim()) {
       console.log('[autowatch] sem alterações para commitar');
+      return;
+    }
+    // Safety: don't run if AUTOWATCH_DISABLED env var is set
+    if (process.env.AUTOWATCH_DISABLED) {
+      console.log('[autowatch] desabilitado pela variável AUTOWATCH_DISABLED');
       return;
     }
     const br = await run('git rev-parse --abbrev-ref HEAD');
