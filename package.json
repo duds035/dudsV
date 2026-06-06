@@ -1,0 +1,12 @@
+{
+  "name": "norm",
+  "version": "1.0.0",
+  "description": "Servidor para aplicação de checklists",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0"
+  }
+}

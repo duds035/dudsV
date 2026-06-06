@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Normatel - Acesso</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-left">
+    <img class="logo" src="logo-ne.png" alt="Normatel Engenharia" />
+  </div>
+  <div class="header-right">
+    <div class="company-title">Normatel Engenharia</div>
+    <div class="company-subtitle">Ambiente de demonstração</div>
+  </div>
+</header>
+
+
+<main class="site-main auth-page">
+  <section class="auth-card">
+    <div class="auth-left">
+      <div class="auth-title">Bem-vindo de volta</div>
+      <div class="auth-sub">Acesse sua conta agora</div>
+      <button class="btn btn-light" id="goLogin">Entrar</button>
+    </div>
+
+    <div class="auth-right">
+      <div class="tabs">
+        <button class="tab active" data-tab="register">Criar sua conta</button>
+        <button class="tab" data-tab="login">Login</button>
+      </div>
+
+      <div class="tab-panel" id="panel-register">
+        <label class="lbl">Nome</label>
+        <input id="regName" type="text" placeholder="Seu nome" />
+
+        <label class="lbl">E-mail</label>
+        <input id="regEmail" type="email" placeholder="email@exemplo.com" />
+
+        <label class="lbl">Senha</label>
+        <input id="regPass" type="password" placeholder="mín. 4 caracteres" />
+
+        <button class="btn btn-primary full" id="btnRegister">Cadastrar</button>
+      </div>
+
+      <div class="tab-panel hidden" id="panel-login">
+        <label class="lbl">E-mail</label>
+        <input id="logEmail" type="email" placeholder="email@exemplo.com" />
+
+        <label class="lbl">Senha</label>
+        <input id="logPass" type="password" placeholder="sua senha" />
+
+        <button class="btn btn-primary full" id="btnLogin">Entrar</button>
+      </div>
+
+      <div class="paper-status hidden" id="authStatus"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <span>© <span id="year"></span> Normatel Engenharia</span>
+  <span class="footer-sep">•</span>
+  <span>Ambiente de demonstração</span>
+</footer>
+
+<script src="app.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

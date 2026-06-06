@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Menu - Normatel Engenharia</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .menu-page-wrap {
+        width: min(1100px, 100%);
+        margin: 0 auto;
+      }
+
+      .menu-hero {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        padding: 26px;
+        margin-bottom: 18px;
+      }
+
+      .menu-hero-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .menu-hero-title {
+        font-size: 28px;
+        font-weight: 900;
+        color: #111827;
+        margin-bottom: 8px;
+      }
+
+      .menu-hero-sub {
+        font-size: 15px;
+        line-height: 1.6;
+        opacity: 0.85;
+        max-width: 760px;
+      }
+
+      .menu-user-box {
+        min-width: 260px;
+        background: #f3f4f6;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        padding: 16px;
+      }
+
+      .menu-user-label {
+        font-size: 12px;
+        font-weight: 800;
+        opacity: 0.75;
+        margin-bottom: 6px;
+      }
+
+      .menu-user-name {
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 4px;
+      }
+
+      .menu-user-email {
+        font-size: 13px;
+        opacity: 0.8;
+        word-break: break-word;
+      }
+
+      .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .menu-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        min-height: 240px;
+      }
+
+      .menu-card-title {
+        font-size: 22px;
+        font-weight: 900;
+        color: #111827;
+      }
+
+      .menu-card-text {
+        font-size: 14px;
+        line-height: 1.6;
+        opacity: 0.85;
+        flex: 1;
+      }
+
+      .menu-card .btn {
+        background-color: rgba(30, 207, 14, 0.74);
+        width: 100%;
+      }
+
+      .menu-card-highlight {
+        border: 2px solid rgba(52, 208, 88, 0.28);
+      }
+
+      .menu-info-strip {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        padding: 18px 22px;
+        margin-top: 18px;
+      }
+
+      .menu-info-strip-title {
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 6px;
+      }
+
+      .menu-info-strip-text {
+        font-size: 14px;
+        line-height: 1.6;
+        opacity: 0.85;
+      }
+
+      .support-box p {
+        margin: 0 0 10px 0;
+        line-height: 1.6;
+      }
+
+      .support-contact {
+        background: #f3f4f6;
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+      }
+
+      .support-contact div {
+        margin-bottom: 6px;
+      }
+
+      @media (max-width: 980px) {
+        .menu-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .menu-hero-top {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .menu-user-box {
+          width: 100%;
+        }
+
+
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="site-header no-print">
+      <div class="header-left">
+        <img class="logo" src="logo-ne.png" alt="Normatel Engenharia" />
+      </div>
+      <div class="header-right">
+        <div class="company-title">Normatel Engenharia</div>
+        <div class="company-subtitle">Central de Acesso</div>
+      </div>
+    </header>
+
+    <nav class="site-menu no-print">
+      <a href="#" class="menu-item" id="btnSairNav">Sair</a>
+    </nav>
+
+    <main class="site-main">
+      <div class="menu-page-wrap">
+        <section class="menu-hero">
+          <div class="menu-hero-top">
+            <div>
+              <div class="menu-hero-title">Bem-vindo ao painel operacional</div>
+              <div class="menu-hero-sub">
+                Este ambiente reúne os formulários de planejamento utilizados para organização,
+                registro e acompanhamento de atividades operacionais. Aqui você pode acessar
+                o checklist crítico e o checklist simples, registrar informações, revisar dados
+                já salvos e manter o planejamento padronizado em um único lugar.
+              </div>
+            </div>
+
+            <div class="menu-user-box">
+              <div class="menu-user-label">Usuário conectado</div>
+              <div class="menu-user-name" id="menuUserName">—</div>
+              <div class="menu-user-email" id="menuUserEmail">—</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="menu-grid">
+          <article class="menu-card menu-card-highlight">
+            <div class="menu-card-title">Checklist Crítico</div>
+            <div class="menu-card-text">
+              Acesse o formulário completo para atividades críticas, com análise mais detalhada,
+              recursos, planejamento por etapas e ficha técnica complementar.
+            </div>
+            <button class="btn btn-primary" id="goCritico" type="button">Abrir Checklist Crítico</button>
+          </article>
+
+          <article class="menu-card">
+            <div class="menu-card-title">Checklist Simples</div>
+            <div class="menu-card-text">
+              Utilize a versão simplificada para atividades com fluxo mais direto, mantendo
+              padronização de registro, etapas, recursos necessários e segunda página de apoio.
+            </div>
+            <button class="btn btn-light" id="goSimples" type="button">Abrir Checklist Simples</button>
+          </article>
+
+          <article class="menu-card">
+            <div class="menu-card-title">Suporte</div>
+            <div class="menu-card-text">
+              Em caso de dúvida sobre preenchimento, uso do sistema ou fluxo operacional,
+              abra o suporte para visualizar orientações e canais de contato.
+            </div>
+            <button class="btn btn-light" id="btnSuporte" type="button">Abrir Suporte</button>
+          </article>
+        </section>
+
+        <section class="menu-info-strip">
+          <div class="menu-info-strip-title">O que este site engloba</div>
+          <div class="menu-info-strip-text">
+            O portal foi desenvolvido para centralizar os processos de planejamento operacional,
+            facilitar o preenchimento de checklists, permitir recuperação de registros por usuário
+            e manter um fluxo simples entre cadastro, seleção do tipo de checklist e impressão
+            dos formulários gerados.
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer no-print">
+      <span>© <span id="year"></span> Normatel Engenharia</span>
+      <span class="footer-sep">•</span>
+      <span>Ambiente de demonstração</span>
+    </footer>
+
+    <div class="modal-backdrop hidden no-print" id="modalBackdrop">
+      <div class="modal">
+        <div class="modal-head">
+          <div class="modal-title" id="modalTitle">Janela</div>
+          <button class="modal-close" id="modalClose" type="button">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-foot" id="modalFoot"></div>
+      </div>
+    </div>
+
+    <script src="menu.js"></script>
+  </body>
+</html>

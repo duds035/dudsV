@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Checklist Simples</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style2.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  </head>
+
+  <body>
+    <header class="site-header no-print">
+      <div class="header-left">
+        <img class="logo" src="logo-ne.png" alt="Normatel Engenharia" />
+      </div>
+      <div class="header-right">
+        <div class="company-title">Normatel Engenharia</div>
+        <div class="company-subtitle">Checklist Simples</div>
+      </div>
+    </header>
+
+    <nav class="site-menu no-print">
+      <a href="menu.html" class="menu-item">Voltar ao Menu</a>
+    </nav>
+
+    <main class="site-main">
+      <section class="form-paper simple-form-paper" id="printArea">
+        <div class="top-grid">
+          <div class="form-block top-data">
+            <div class="simple-header-wrap" style="background: #796b6b4f;">
+              <table class="simple-header-table">
+              <tr class="simple-header-top-row">
+                <td class="simple-header-logo-cell">
+                  <div class="simple-header-logo-wrap">
+                    <img class="simple-header-logo" src="Logo_petrobras.png" alt="Petrobras" />
+                  </div>
+                </td>
+
+                <td class="simple-header-title-cell">
+                  <div class="simple-header-title-main">
+                    Checklist de Planejamento - Atividade Simples
+                  </div>
+                  <div class="simple-header-title-sub">
+                    COMPARTILHADO/GIO/BCES/IMBE
+                  </div>
+                </td>
+
+                <td class="simple-header-code-cell">
+                  V1 - 21/10/2019
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan="3" class="simple-header-full-row">
+                  <span class="simple-header-label">DESCRIÇÃO DA ATIVIDADE:</span>
+                  <input id="descricaoAtividade" type="text" class="simple-header-inline-input simple-header-desc-input" />
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan="3" class="simple-header-full-row">
+                  <div class="simple-header-inline-group">
+                    <div class="simple-header-inline-item simple-header-inline-grow">
+                      <span class="simple-header-label">RESPONSÁVEL PELO PLANEJAMENTO:</span>
+                      <input id="responsavelPlanejamento" type="text" class="simple-header-inline-input" />
+                    </div>
+
+                    <div class="simple-header-inline-item simple-header-inline-fixed">
+                      <span class="simple-header-label">REQUISITANTE:</span>
+                      <input id="requisitante" type="text" class="simple-header-inline-input" />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan="3" class="simple-header-full-row">
+                  <div class="simple-header-inline-group">
+                    <div class="simple-header-inline-item simple-header-inline-grow">
+                      <span class="simple-header-label">HORÁRIO DE DURAÇÃO PREVISTO:</span>
+                      <input id="horarioDuracao" type="text" class="simple-header-inline-input" />
+                    </div>
+
+                    <div class="simple-header-inline-item simple-header-inline-fixed">
+                      <span class="simple-header-label">EXECUTANTE:</span>
+                      <input id="executante" type="text" class="simple-header-inline-input" />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan="3" class="simple-header-full-row">
+                  <span class="simple-header-label">N° DA SOLICITAÇÃO:</span>
+                  <input id="numSolicitacao" type="text" class="simple-header-inline-input simple-header-solic-input" />
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan="3" class="simple-header-full-row">
+                  <div class="simple-header-inline-group simple-header-last-line">
+                    <div class="simple-header-inline-item simple-header-inline-grow simple-header-local-item">
+                      <span class="simple-header-label">LOCAL DA ATIVIDADE:</span>
+                      <input id="localAtividade" type="text" class="simple-header-inline-input simple-header-local-input" />
+                    </div>
+                    <div class="simple-header-inline-item simple-header-date-item">
+                      <span class="simple-header-label">DATA INÍCIO:</span>
+                      <input id="dataInicio" type="date" class="simple-header-inline-input simple-header-date-input" />
+                    </div>
+
+                    <div class="simple-header-inline-item simple-header-date-item">
+                      <span class="simple-header-label">DATA FIM:</span>
+                      <input id="dataFim" type="date" class="simple-header-inline-input simple-header-date-input" />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+            </div>
+            
+            <div class="form-row no-print" style="margin-top: 8px;">
+              <div class="form-field grow">
+                <div class="lbl">Carteira</div>
+                <select id="carteira"></select>
+              </div>
+            </div>
+
+            <div class="paper-status hidden" id="status"></div>
+          </div>
+
+          <aside class="actions-stack no-print">
+            <div class="actions-title">Ações</div>
+
+            <button class="btn btn-light" id="btnNovo" type="button">Novo checklist</button>
+            <button class="btn btn-light" id="btnAbrirModalLista" type="button">Puxar checklists</button>
+            <button class="btn btn-primary" id="btnSalvar" type="button">Salvar</button>
+            <button class="btn btn-light" id="btnImprimirModal" type="button">Imprimir checklist</button>
+            <button class="btn btn-light" id="btnSair" type="button">Sair</button>
+
+            <div class="hint">
+              <div><b>Solicitação atual:</b> <span id="currentIdTxt">—</span></div>
+              <div><b>Usuário:</b> <span id="userTxt">—</span></div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="form-block tight">
+          <div class="etapas-header">
+            <div class="block-title">1. Detalhamento da atividade (etapas e tempo previsto de duração)</div>
+            <button class="btn btn-light no-print etapas-add-btn" id="btnAddEtapa" type="button">
+              Adicionar etapa
+            </button>
+          </div>
+
+          <table class="tbl etapas simple-etapas-table">
+            <thead>
+              <tr>
+                <th class="etapa-col">Etapa</th>
+                <th>Descrição</th>
+                <th class="time-col">Início</th>
+                <th class="time-col">Término</th>
+                <th class="time-col">Duração</th>
+                <th class="etapa-action-col no-print">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="etapasBody"></tbody>
+          </table>
+        </div>
+
+        <div class="simple-block">
+          <table class="tbl">
+            <tbody>
+              <tr>
+                <td class="sec-title">
+                  2. A atividade afeta o acesso/movimentação de pessoas no local e/ou acesso a rotas de fuga?
+                </td>
+                <td class="col-s"><input type="radio" name="q2" value="sim" /></td>
+                <td class="col-s"><input type="radio" name="q2" value="nao" /></td>
+                <td class="col-s"><input type="radio" name="q2" value="na" /></td>
+              </tr>
+
+              <tr>
+                <td class="sec-title">
+                  3. Existe alguma outra atividade ocorrendo ou prevista para ocorrer no mesmo local da atividade pretendida?
+                </td>
+                <td class="col-s"><input type="radio" name="q3" value="sim" /></td>
+                <td class="col-s"><input type="radio" name="q3" value="nao" /></td>
+                <td class="col-s"><input type="radio" name="q3" value="na" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-block tight">
+          <div class="block-title simple-block-title">4. Os recursos necessários estão disponíveis para execução?</div>
+
+          <table class="tbl small">
+            <tbody>
+              <tr>
+                <td class="equip">EPIs e EPCs</td><td class="chk"><input id="r1" type="checkbox" /></td>
+                <td class="equip">Serra Mármore</td><td class="chk"><input id="r2" type="checkbox" /></td>
+                <td class="equip">Carrinho de Mão</td><td class="chk"><input id="r3" type="checkbox" /></td>
+              </tr>
+              <tr>
+                <td class="equip">Escada</td><td class="chk"><input id="r4" type="checkbox" /></td>
+                <td class="equip">Martelete</td><td class="chk"><input id="r5" type="checkbox" /></td>
+                <td class="equip">Espátula</td><td class="chk"><input id="r6" type="checkbox" /></td>
+              </tr>
+              <tr>
+                <td class="equip">Ferramentas Manuais</td><td class="chk"><input id="r7" type="checkbox" /></td>
+                <td class="equip">Talhadeira / Martelo</td><td class="chk"><input id="r8" type="checkbox" /></td>
+                <td class="equip">Balde</td><td class="chk"><input id="r9" type="checkbox" /></td>
+              </tr>
+              <tr>
+                <td class="equip">Contenção de Resíduos</td><td class="chk"><input id="r10" type="checkbox" /></td>
+                <td class="equip">Furadeira</td><td class="chk"><input id="r11" type="checkbox" /></td>
+                <td class="equip">Estopa</td><td class="chk"><input id="r12" type="checkbox" /></td>
+              </tr>
+              <tr>
+                <td class="equip">Instrumento de Medição</td><td class="chk"><input id="r13" type="checkbox" /></td>
+                <td class="equip">Capacete de Segurança</td><td class="chk"><input id="r14" type="checkbox" /></td>
+                <td class="equip">Bota de Segurança</td><td class="chk"><input id="r15" type="checkbox" /></td>
+              </tr>
+              <tr>
+                <td class="equip">Uniforme RF</td><td class="chk"><input id="r16" type="checkbox" /></td>
+                <td class="equip">Protetor Auricular</td><td class="chk"><input id="r17" type="checkbox" /></td>
+                <td class="equip">Óculos de Segurança</td><td class="chk"><input id="r18" type="checkbox" /></td>
+              </tr>
+              <tr>
+                <td class="equip">Cinto de Segurança</td><td class="chk"><input id="r19" type="checkbox" /></td>
+                <td class="equip">Luva</td><td class="chk"><input id="r20" type="checkbox" /></td>
+                <td class="equip"></td><td class="chk"></td>
+              </tr>
+              <tr>
+                <td class="equip">Outros:</td>
+                <td colspan="5"><input id="outrosRecursos" class="line-input" type="text" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-block tight">
+          <div class="q-row">
+            <div class="q-text">5. O local onde será executado o serviço foi verificado?</div>
+            <div class="q-opts">
+              <label><input type="radio" name="q5" value="sim" /> Sim</label>
+              <label><input type="radio" name="q5" value="nao" /> Não</label>
+              <label><input type="radio" name="q5" value="na" /> N.A.</label>
+            </div>
+          </div>
+
+          <div class="q-row">
+            <div class="q-text">6. A posição para realização da atividade requer alguma orientação adicional?</div>
+            <div class="q-opts">
+              <label><input type="radio" name="q6" value="sim" /> Sim</label>
+              <label><input type="radio" name="q6" value="nao" /> Não</label>
+              <label><input type="radio" name="q6" value="na" /> N.A.</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="simple-signature-area">
+          <div class="form-row">
+            <div class="form-field grow">
+              <div class="lbl">Executante substituto</div>
+              <input id="executanteSubstituto" type="text" />
+            </div>
+          </div>
+
+          <div class="simple-signature-box">
+            <div class="simple-signature-space"></div>
+            <div class="simple-signature-line"></div>
+            <div class="simple-signature-label">Assinatura do Responsável</div>
+            <input id="assinaturaResponsavel" class="simple-signature-input" type="text" />
+          </div>
+        </div>
+        <div class="page-break"></div>
+
+        <div class="page-2 simple-page-2">
+          <table class="ftas-meta">
+            <tr>
+              <td class="logo-cell">
+                <img class="mini-logo" src="logo-ne.png" alt="Normatel Engenharia" />
+              </td>
+
+              <td class="title-cell" colspan="4">
+                <div class="ftas-top-title">
+                  SISTEMA DE GESTÃO INTEGRADA FORMULÁRIO DE GESTÃO
+                </div>
+
+                <div class="ftas-main-title">
+                  FICHA TÉCNICA DE AVALIAÇÃO DE SERVIÇOS
+                </div>
+              </td>
+
+              <td class="code-cell">
+                FRI-ENG-11174<br />
+                Data: 09/09/2019
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <div class="meta-box compact">
+                  <label class="meta-label">Responsável:</label>
+                  <input id="ftResponsavel" type="text" />
+                </div>
+              </td>
+
+              <td colspan="2">
+                <div class="meta-box compact">
+                  <label class="meta-label">Data da Avaliação:</label>
+                  <input id="ftDataAvaliacao" type="text" />
+                </div>
+              </td>
+
+              <td colspan="2">
+                <div class="meta-box compact">
+                  <label class="meta-label">Tempo Estimado de execução:</label>
+                  <input id="ftTempoExec" type="text" />
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <div class="meta-box compact">
+                  <label class="meta-label">Nº da Solicitação:</label>
+                  <input id="ftNumSolicitacao" type="text" />
+                </div>
+              </td>
+
+              <td colspan="2">
+                <div class="meta-box compact">
+                  <label class="meta-label">Equipe Necessária:</label>
+                  <input id="ftEquipeNecessaria" type="text" />
+                </div>
+              </td>
+
+              <td colspan="2">
+                <div class="meta-box compact">
+                  <label class="meta-label">Local da Atividade:</label>
+                  <input id="ftLocalAtividade" type="text" />
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <div class="form-table-title small-title">SINALIZE OS ITENS NECESSÁRIOS PARA EXECUÇÃO DO SERVIÇO</div>
+
+          <table class="tbl ftas-checklist">
+            <tbody>
+              <tr>
+                <td class="item-label">PEMT?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft1" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft1" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Qtd de Dias</td>
+                <td><input id="ft1obs" type="text" /></td>
+                <td class="item-label">Tamanho</td>
+                <td><input id="ftTamanho" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Limpeza de área?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft2" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft2" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Qtd de Dias</td>
+                <td><input id="ft2obs" type="text" /></td>
+                <td class="item-label">Fim de Semana?</td>
+                <td class="yn-cell inline-yesno">
+                  <label><input type="radio" name="ftFimSemana" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ftFimSemana" value="nao" /> Não</label>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Comunicações operantes?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft3" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft3" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Qtd de Dias</td>
+                <td><input id="ft3obs" type="text" /></td>
+                <td class="item-label">Fim de Semana?</td>
+                <td><input id="ftFimSemanaObs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Visita Técnica?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft4" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft4" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft4obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Montagem Andaime?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft5" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft5" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft5obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Visita SMS?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft6" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft6" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft6obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Caminhão Munck?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft7" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft7" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft7obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Veículo?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft8" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft8" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft8obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">LIBRA?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft9" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft9" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft9obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">AR2?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft10" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft10" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft10obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Desligamento elétrico?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft11" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft11" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft11obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Desligamento SDAI?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft12" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft12" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft12obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Desligamento FM200?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft13" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft13" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft13obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Remanejamento de mobiliário?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft14" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft14" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Agendamento:</td>
+                <td colspan="3"><input id="ft14obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Material específico que necessite de compra Normatel ou Petrobras?</td>
+                <td colspan="5"><input id="ftMaterialCompra" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Locação de máquinas / ferramentas?</td>
+                <td colspan="5"><input id="ftLocacao" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td class="item-label">Apoio de outra equipe?</td>
+                <td class="yn-cell">
+                  <label><input type="radio" name="ft15" value="sim" /> Sim</label>
+                  <label><input type="radio" name="ft15" value="nao" /> Não</label>
+                </td>
+                <td class="item-label">Se sim, qual equipe?</td>
+                <td colspan="3"><input id="ft15obs" type="text" /></td>
+              </tr>
+
+              <tr>
+                <td colspan="6">
+                  <div class="ft-small-note">Descrever com detalhes o apoio que deverá ser prestado para execução da atividade</div>
+                  <input id="ftApoioDescricao" type="text" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="form-table-title small-title">INFORMAÇÕES ADICIONAIS</div>
+          <table class="tbl lines-table">
+            <tbody id="infoAdicionaisBody"></tbody>
+          </table>
+
+          <div class="form-table-title small-title">NECESSIDADE DE MATERIAL - Separação de Material no Almoxarifado</div>
+          <table class="tbl material-table">
+            <thead>
+              <tr>
+                <th class="qtd-col">QNT</th>
+                <th class="und-col">UND</th>
+                <th>DESCRIÇÃO DO MATERIAL</th>
+                <th class="sep-col">Está separado?</th>
+              </tr>
+            </thead>
+            <tbody id="materiaisBody"></tbody>
+          </table>
+          <div class="form-block tight">
+            <div class="block-title">Imagens</div>
+            <div class="fotos-preview"></div>
+            <button class="btn btn-light no-print" id="btnAddImagem" type="button">Adicionar Imagem</button>
+          </div>
+
+          <div class="form-block tight">
+            <div class="block-title">Localização</div>
+            <div class="form-row">
+              <div class="form-field grow">
+                <div class="lbl">Latitude</div>
+                <input id="locationLatitude" type="text" class="line-input" readonly />
+              </div>
+              <div class="form-field grow">
+                <div class="lbl">Longitude</div>
+                <input id="locationLongitude" type="text" class="line-input" readonly />
+              </div>
+            </div>
+            <button class="btn btn-light no-print" id="btnGetLocation" type="button">Capturar localização</button>
+            <div id="locationMap" class="location-map no-print"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer no-print">
+      <span>© <span id="year"></span> Normatel Engenharia</span>
+      <span class="footer-sep">•</span>
+      <span>Ambiente de demonstração</span>
+    </footer>
+
+    <div class="modal-backdrop hidden no-print" id="modalBackdrop">
+      <div class="modal">
+        <div class="modal-head">
+          <div class="modal-title" id="modalTitle">Janela</div>
+          <button class="modal-close" id="modalClose" type="button">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-foot" id="modalFoot"></div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="checklistSimples.js"></script>
+  </body>
+</html>
