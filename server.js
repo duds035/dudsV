@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const db = require('./db');
 
 const app = express();
 const PORT = 3000;
@@ -12,30 +13,12 @@ app.use(express.static(__dirname));
 
 const DB_PATH = path.join(__dirname, "database.json");
 
-function ensureDB() {
-  if (!fs.existsSync(DB_PATH)) {
-    fs.writeFileSync(DB_PATH, JSON.stringify({ users: [], checklists: [] }, null, 2), "utf-8");
-  }
+async function readDB() {
+  return db.readDB();
 }
 
-function readDB() {
-  ensureDB();
-  const raw = fs.readFileSync(DB_PATH, "utf-8");
-
-  try {
-    const data = JSON.parse(raw);
-    if (!Array.isArray(data.users)) data.users = [];
-    if (!Array.isArray(data.checklists)) data.checklists = [];
-    return data;
-  } catch {
-    const data = { users: [], checklists: [] };
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf-8");
-    return data;
-  }
-}
-
-function writeDB(data) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf-8");
+async function writeDB(data) {
+  return db.writeDB(data);
 }
 
 function sanitizeEmail(email) {
@@ -78,17 +61,23 @@ function requireAuth(req, res, next) {
     return res.status(401).json({ error: "Não autorizado. Faça login." });
   }
 
-  const db = readDB();
-  const user = db.users.find(
-    (u) => Number(u.id) === userId && sanitizeEmail(u.email) === userEmail
-  );
+  const dbData = readDB();
+  // support async readDB when using Postgres
+  Promise.resolve(dbData).then((resolved) => {
+    const user = resolved.users.find(
+      (u) => Number(u.id) === userId && sanitizeEmail(u.email) === userEmail
+    );
 
-  if (!user) {
-    return res.status(401).json({ error: "Sessão inválida. Faça login novamente." });
-  }
+    if (!user) {
+      return res.status(401).json({ error: "Sessão inválida. Faça login novamente." });
+    }
 
-  req.user = safeUser(user);
-  next();
+    req.user = safeUser(user);
+    next();
+  }).catch((err) => {
+    console.error('DB error in requireAuth:', err);
+    return res.status(500).json({ error: 'Erro interno' });
+  });
 }
 
 app.post("/api/register", (req, res) => {
@@ -108,25 +97,32 @@ app.post("/api/register", (req, res) => {
     return res.status(400).json({ error: "Senha muito curta (mín 4)." });
   }
 
-  const db = readDB();
-  const exists = db.users.some((u) => sanitizeEmail(u.email) === email);
+  Promise.resolve(readDB()).then((db) => {
+    const exists = db.users.some((u) => sanitizeEmail(u.email) === email);
 
-  if (exists) {
-    return res.status(409).json({ error: "E-mail já cadastrado." });
-  }
+    if (exists) {
+      return res.status(409).json({ error: "E-mail já cadastrado." });
+    }
 
-  const user = {
-    id: Date.now(),
-    name,
-    email,
-    password: hashPassword(password),
-    createdAt: new Date().toISOString(),
-  };
+    const user = {
+      id: Date.now(),
+      name,
+      email,
+      password: hashPassword(password),
+      createdAt: new Date().toISOString(),
+    };
 
-  db.users.push(user);
-  writeDB(db);
-
-  return res.status(201).json({ user: safeUser(user) });
+    db.users.push(user);
+    Promise.resolve(writeDB(db)).then(() => {
+      return res.status(201).json({ user: safeUser(user) });
+    }).catch((err) => {
+      console.error('writeDB error:', err);
+      return res.status(500).json({ error: 'Erro ao salvar usuário' });
+    });
+  }).catch((err) => {
+    console.error('readDB error:', err);
+    return res.status(500).json({ error: 'Erro interno' });
+  });
 });
 
 app.post("/api/login", (req, res) => {
@@ -141,36 +137,40 @@ app.post("/api/login", (req, res) => {
     return res.status(400).json({ error: "Senha obrigatória." });
   }
 
-  const db = readDB();
-  const userIndex = db.users.findIndex((u) => sanitizeEmail(u.email) === email);
-  if (userIndex === -1) {
-    return res.status(401).json({ error: "Credenciais inválidas." });
-  }
-
-  const user = db.users[userIndex];
-  let valid = false;
-
-  if (isLegacyPlainPassword(user.password)) {
-    valid = String(user.password) === password;
-
-    if (valid) {
-      db.users[userIndex].password = hashPassword(password);
-      writeDB(db);
+  Promise.resolve(readDB()).then((db) => {
+    const userIndex = db.users.findIndex((u) => sanitizeEmail(u.email) === email);
+    if (userIndex === -1) {
+      return res.status(401).json({ error: "Credenciais inválidas." });
     }
-  } else {
-    valid = verifyHashedPassword(password, user.password);
-  }
 
-  if (!valid) {
-    return res.status(401).json({ error: "Credenciais inválidas." });
-  }
+    const user = db.users[userIndex];
+    let valid = false;
 
-  return res.json({ user: safeUser(db.users[userIndex]) });
+    if (isLegacyPlainPassword(user.password)) {
+      valid = String(user.password) === password;
+
+      if (valid) {
+        db.users[userIndex].password = hashPassword(password);
+        writeDB(db).catch((e) => console.error('writeDB error on login upgrade:', e));
+      }
+    } else {
+      valid = verifyHashedPassword(password, user.password);
+    }
+
+    if (!valid) {
+      return res.status(401).json({ error: "Credenciais inválidas." });
+    }
+
+    return res.json({ user: safeUser(db.users[userIndex]) });
+  }).catch((err) => {
+    console.error('readDB error:', err);
+    return res.status(500).json({ error: 'Erro interno' });
+  });
 });
 
 app.post("/api/checklists", requireAuth, (req, res) => {
-  const db = readDB();
-  const payload = req.body || {};
+  Promise.resolve(readDB()).then((db) => {
+    const payload = req.body || {};
 
   if (payload.imagens) {
     if (!Array.isArray(payload.imagens)) {
@@ -197,75 +197,88 @@ app.post("/api/checklists", requireAuth, (req, res) => {
     return res.status(400).json({ error: "Informe a Descrição da Atividade (mín 3 caracteres)." });
   }
 
-  const checklist = {
-    id: Date.now(),
-    userId: req.user.id,
-    userEmail: req.user.email,
-    userName: req.user.name,
-    ...payload,
-    createdAt: new Date().toISOString(),
-  };
+    const checklist = {
+      id: Date.now(),
+      userId: req.user.id,
+      userEmail: req.user.email,
+      userName: req.user.name,
+      ...payload,
+      createdAt: new Date().toISOString(),
+    };
 
-  db.checklists.push(checklist);
-  writeDB(db);
-
-  return res.status(201).json({ id: checklist.id });
+    db.checklists.push(checklist);
+    Promise.resolve(writeDB(db)).then(() => {
+      return res.status(201).json({ id: checklist.id });
+    }).catch((err) => {
+      console.error('writeDB error:', err);
+      return res.status(500).json({ error: 'Erro ao salvar checklist' });
+    });
+  }).catch((err) => {
+    console.error('readDB error:', err);
+    return res.status(500).json({ error: 'Erro interno' });
+  });
 });
 
 app.get("/api/checklists", requireAuth, (req, res) => {
-  const db = readDB();
-  let items = Array.isArray(db.checklists) ? db.checklists : [];
+  Promise.resolve(readDB()).then((db) => {
+    let items = Array.isArray(db.checklists) ? db.checklists : [];
 
-  items = items.filter((c) => Number(c.userId) === Number(req.user.id));
+    items = items.filter((c) => Number(c.userId) === Number(req.user.id));
 
-  const dateFrom = String(req.query.dateFrom || "").trim();
-  const dateTo = String(req.query.dateTo || "").trim();
+    const dateFrom = String(req.query.dateFrom || "").trim();
+    const dateTo = String(req.query.dateTo || "").trim();
 
-  if (dateFrom) {
-    items = items.filter((c) => String(c.data || "").slice(0, 10) >= dateFrom);
-  }
+    if (dateFrom) {
+      items = items.filter((c) => String(c.data || "").slice(0, 10) >= dateFrom);
+    }
 
-  if (dateTo) {
-    items = items.filter((c) => String(c.data || "").slice(0, 10) <= dateTo);
-  }
+    if (dateTo) {
+      items = items.filter((c) => String(c.data || "").slice(0, 10) <= dateTo);
+    }
 
-  return res.json({ checklists: items });
+    return res.json({ checklists: items });
+  }).catch((err) => {
+    console.error('readDB error:', err);
+    return res.status(500).json({ error: 'Erro interno' });
+  });
 });
 
 app.get("/api/checklists/:id", requireAuth, (req, res) => {
   const id = Number(req.params.id);
-  const db = readDB();
+  Promise.resolve(readDB()).then((db) => {
+    const item = (db.checklists || []).find((c) => Number(c.id) === id);
 
-  const item = (db.checklists || []).find((c) => Number(c.id) === id);
+    if (!item) {
+      return res.status(404).json({ error: "Checklist não encontrado." });
+    }
 
-  if (!item) {
-    return res.status(404).json({ error: "Checklist não encontrado." });
-  }
+    if (Number(item.userId) !== Number(req.user.id)) {
+      return res.status(403).json({ error: "Acesso negado." });
+    }
 
-  if (Number(item.userId) !== Number(req.user.id)) {
-    return res.status(403).json({ error: "Acesso negado." });
-  }
-
-  return res.json(item);
+    return res.json(item);
+  }).catch((err) => {
+    console.error('readDB error:', err);
+    return res.status(500).json({ error: 'Erro interno' });
+  });
 });
 
 app.put("/api/checklists/:id", requireAuth, (req, res) => {
   const id = Number(req.params.id);
-  const db = readDB();
+  Promise.resolve(readDB()).then((db) => {
+    const idx = (db.checklists || []).findIndex((c) => Number(c.id) === id);
+    if (idx === -1) {
+      return res.status(404).json({ error: "Checklist não encontrado." });
+    }
 
-  const idx = (db.checklists || []).findIndex((c) => Number(c.id) === id);
-  if (idx === -1) {
-    return res.status(404).json({ error: "Checklist não encontrado." });
-  }
+    const existing = db.checklists[idx];
+    if (Number(existing.userId) !== Number(req.user.id)) {
+      return res.status(403).json({ error: "Acesso negado." });
+    }
 
-  const existing = db.checklists[idx];
-  if (Number(existing.userId) !== Number(req.user.id)) {
-    return res.status(403).json({ error: "Acesso negado." });
-  }
+    const payload = req.body || {};
 
-  const payload = req.body || {};
-
-  if (payload.imagens) {
+    if (payload.imagens) {
     if (!Array.isArray(payload.imagens)) {
       return res.status(400).json({ error: "Imagens deve ser um array." });
     }
@@ -291,18 +304,26 @@ app.put("/api/checklists/:id", requireAuth, (req, res) => {
     return res.status(400).json({ error: "Informe a Descrição da Atividade (mín 3 caracteres)." });
   }
 
-  db.checklists[idx] = {
-    ...existing,
-    ...payload,
-    id,
-    userId: existing.userId,
-    userEmail: existing.userEmail,
-    userName: existing.userName,
-    updatedAt: new Date().toISOString(),
-  };
+    db.checklists[idx] = {
+      ...existing,
+      ...payload,
+      id,
+      userId: existing.userId,
+      userEmail: existing.userEmail,
+      userName: existing.userName,
+      updatedAt: new Date().toISOString(),
+    };
 
-  writeDB(db);
-  return res.json({ ok: true, id });
+    Promise.resolve(writeDB(db)).then(() => {
+      return res.json({ ok: true, id });
+    }).catch((err) => {
+      console.error('writeDB error:', err);
+      return res.status(500).json({ error: 'Erro ao salvar checklist' });
+    });
+  }).catch((err) => {
+    console.error('readDB error:', err);
+    return res.status(500).json({ error: 'Erro interno' });
+  });
 });
 
 app.get("/", (req, res) => {
@@ -329,6 +350,12 @@ app.get("/checklist-simples", (req, res) => {
   res.sendFile(path.join(__dirname, "checklistSimples.html"));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  try {
+    await db.init();
+    console.log('DB inicializado. usando Postgres:', db.usingPg());
+  } catch (e) {
+    console.error('Falha ao inicializar DB:', e);
+  }
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
