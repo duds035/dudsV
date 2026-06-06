@@ -9,9 +9,14 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "autowatch": "node .githooks/watcher.js"
+    "autowatch": "node .githooks/watcher.js",
+    "prepare": "husky install"
   },
   "dependencies": {
     "express": "^4.18.0"
+  }
+  ,
+  "devDependencies": {
+    "husky": "^8.0.0"
   }
 }

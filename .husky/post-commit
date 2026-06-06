@@ -1,0 +1,4 @@
+#!/bin/sh
+# Versioned post-commit hook: tenta fazer push do branch atual para origin
+branch=$(git rev-parse --abbrev-ref HEAD)
+git push origin "$branch" || true
